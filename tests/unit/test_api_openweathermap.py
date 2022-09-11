@@ -7,7 +7,6 @@ from plenty.api.openweathermap import process_history_req_input
 from plenty.api.openweathermap import geocoding_req
 from plenty.api.openweathermap import history_req
 from plenty.api.openweathermap import get_point
-from plenty.api.openweathermap import get_history
 
 
 class MockResponse:

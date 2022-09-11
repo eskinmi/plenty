@@ -10,7 +10,7 @@ class PlentyDatabase:
         self.tables = self._get_tables()
 
     def _get_tables(self):
-        self.cursor.execute('SELECT name from sqlite_master where type= "table"')
+        self.cursor.execute('SELECT name from sqlite_master where type = "table"')
         return self.cursor.fetchall()
 
     def create_table(self, name, schema):

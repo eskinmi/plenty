@@ -109,7 +109,7 @@ class Repertoire:
         ]
 
     @property
-    def _repertoire_dict(self):
+    def dicts(self):
         if self.L is not None:
             return [
                 {

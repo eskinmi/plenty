@@ -64,9 +64,7 @@ def external_cond():
 
 @mock.patch.object(optimisers.WaterOpt, 'set_temperature_weight')
 @mock.patch.object(optimisers.WaterOpt, 'set_drainage_weight')
-def test_water_opt(mock_set_lgw,
-                   mock_set_tmw,
-                   plant_cond,
+def test_water_opt(plant_cond,
                    external_cond,
                    needs
                    ):
@@ -83,9 +81,7 @@ def test_water_opt(mock_set_lgw,
 
 @mock.patch.object(optimisers.MistOpt, 'set_temperature_weight')
 @mock.patch.object(optimisers.MistOpt, 'set_light_weight')
-def test_mist_opt(mock_set_lgw,
-                  mock_set_tmw,
-                  plant_cond,
+def test_mist_opt(plant_cond,
                   external_cond,
                   needs
                   ):
