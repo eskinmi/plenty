@@ -81,12 +81,9 @@ def geocoding_req(city: str,
                   limit: int = 1
                   ):
     LOC = _merge_loc_params(city, state_code, country_code)
-    print(F'loc : {LOC}')
     url = _get_geocode_endpoint(LOC, limit)
-    print(F'url: {url}')
     try:
         res = requests.get(url)
-        print(F'res: {res}')
         if res.status_code == 200:
             logger.info('geocode api fetch so good!')
             return res.json().pop(), True
@@ -118,7 +115,6 @@ def history_req(lat: Union[int, float],
     url = _get_history_endpoint(lat, lon, start, end)
     try:
         res = requests.get(url)
-        print(F'res: {res}')
         if res.status_code == 200:
             logger.info('openweather api fetch so good!')
             return res.json().pop(), True
