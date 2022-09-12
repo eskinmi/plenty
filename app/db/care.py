@@ -29,8 +29,9 @@ class CareHistory:
             res = q.fetchall()
         return res
 
-    def get(self, plantae_id):
-        if q := self.query(plantae_id):
+    @classmethod
+    def get(cls, plantae_id):
+        if q := cls.query(plantae_id):
             return q
         else:
             logger.debug(

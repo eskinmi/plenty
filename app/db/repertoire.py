@@ -54,10 +54,11 @@ class PlantUnit(Plantae):
             res = q.fetchone()
         return res
 
-    def get(self, plantae_id: str):
-        q = self.query(plantae_id)
+    @classmethod
+    def get(cls, plantae_id: str):
+        q = cls.query(plantae_id)
         if q:
-            self.__init__(
+            PlantUnit(
                 plantae_id=plantae_id,
                 name=q[1],
                 conditions=json.loads(q[2])
@@ -99,13 +100,14 @@ class Repertoire:
             res = q.fetchall()
         return res
 
-    def get(self):
+    @classmethod
+    def get(cls):
         return [
             PlantUnit(plantae_id=row[0],
                       name=row[1],
                       conditions=json.loads(row[2])
                       )
-            for row in self.query()
+            for row in cls.query()
         ]
 
     @property
