@@ -106,12 +106,65 @@ def plan(ctx, care_type, planner_type, impute, n_days):
 
 
 @cli.command()
-@click.option("--name")
-@click.option("--specie")
 @click.pass_context
-def add_to_repertoire(ctx, care_type, planner_type, impute, n_days):
-    from app.db.repertoire import Repertoire
+def add_to_repertoire(ctx):
 
+    click.echo('Adding plant to the repertoire.')
+    click.echo('Plant Identification Information: ')
+    name = click.prompt(
+        'plant name',
+        type=str
+    )
+    species = click.prompt(
+        'plant species',
+        type=str
+    )
+
+    click.echo('Plant conditions information')
+    indoor = click.prompt(
+        'is this an indoor plant',
+        default=True,
+        type=bool,
+        show_default=True
+    )
+
+    click.echo('Please score the following between 0 and 1')
+    isolation_score = click.prompt(
+        'how well is the room of the plant isolated',
+        type=float,
+        default=0.5,
+        show_default=True
+    )
+    light_score = click.prompt(
+        'how much light the plant receives',
+        type=float,
+        default=0.5,
+        show_default=True
+    )
+    drainage_score = click.prompt(
+        'how good is the drainage in the pot',
+        type=float,
+        default=0.5,
+        show_default=True
+    )
+    conditions = {
+        'indoor': indoor,
+        'isolation': {'score': isolation_score},
+        'light': {'score': light_score},
+        'drainage': {'score': drainage_score}
+    }
+
+    from app.db.repertoire import Repertoire
+    rep = Repertoire()
+    rep.add(name, conditions, species)
+
+    cont = click.prompt('Would you like to add more plants?',
+                        default='n',
+                        show_choices=True,
+                        type=click.Choice(['y', 'n'])
+                        )
+    if cont == 'y':
+        ctx.invoke(add_to_repertoire)
 
 
 @cli.command()
