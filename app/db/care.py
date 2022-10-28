@@ -55,27 +55,27 @@ class CareHistory:
 
 class CareNeeds:
     _schema = [
-        'name text, opt_cond_map text'
+        'species text, opt_cond_map text'
     ]
     data = dict()
 
     @staticmethod
-    def query(name):
+    def query(species):
         with PlentyDatabase() as db:
             q = db.cursor.execute(
-                "SELECT * FROM care_needs WHERE name = :name",
-                {'name': name}
+                "SELECT * FROM care_needs WHERE species = :species",
+                {'species': species}
             )
             res = q.fetchone()
         return res
 
     @classmethod
-    def get(cls, plantae_name: str):
-        if not cls.data.get(plantae_name):
-            needs = cls.query(plantae_name)
+    def get(cls, species: str):
+        if not cls.data.get(species):
+            needs = cls.query(species)
             res = json.loads(needs[1])
-            cls.data[plantae_name] = res
+            cls.data[species] = res
             return res
         else:
             logger.debug('data is already loaded.')
-            return cls.data.get(plantae_name, {})
+            return cls.data.get(species, {})

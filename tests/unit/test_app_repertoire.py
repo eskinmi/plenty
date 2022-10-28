@@ -15,15 +15,18 @@ def repertoire():
         (
             '1',
             'macaroni',
-            '{"indoor": true, "isolation": {"score": 0.5}, "light": {"score": 0.7}, "drainage": {"score": 0.5}}'
+            '{"indoor": true, "isolation": {"score": 0.5}, "light": {"score": 0.7}, "drainage": {"score": 0.5}}',
+            'random_species'
          )
     ]
 
 
 @mock.patch('app.db.care.CareHistory.get')
 @mock.patch('app.db.care.CareNeeds.get')
+@mock.patch('app.db.taxonomy.PlantTaxonomy.query')
 @mock.patch('app.db.repertoire.Repertoire.query')
 def test_repertoire(mock_query,
+                    mock_taxonomy_query,
                     mock_needs,
                     mock_hist,
                     repertoire

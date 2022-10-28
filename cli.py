@@ -79,6 +79,8 @@ def cli(ctx, debug):
 @cli.command()
 @click.pass_context
 def run_tests(ctx):
+    if ctx.obj['DEBUG']:
+        click.echo("running tests on debug mode!")
     pytest.main(["tests"])
 
 
@@ -101,6 +103,15 @@ def plan(ctx, care_type, planner_type, impute, n_days):
         if res:
             m = _plan_notification(plant, care_type, res)
             notify(f'Plenty Planner', m)
+
+
+@cli.command()
+@click.option("--name")
+@click.option("--specie")
+@click.pass_context
+def add_to_repertoire(ctx, care_type, planner_type, impute, n_days):
+    from app.db.repertoire import Repertoire
+
 
 
 @cli.command()

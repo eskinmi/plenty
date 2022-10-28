@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from app.db import PlentyDatabase
 from app.db.care import CareHistory
 from app.db.care import CareNeeds
-from app.db.taxonomy import Taxonomy
+from app.db.taxonomy import PlantTaxonomy
 
 
 logger = logging.getLogger('app.repertoire')
@@ -22,11 +22,11 @@ class PlantIdNotKnownException(Exception):
 
 @dataclass
 class Plantae:
-    name: str = None
+    species: str = None
 
     def __post_init__(self):
-        if self.name:
-            self.needs = CareNeeds.get(plantae_name=self.name)
+        if self.species is not None:
+            self.needs = CareNeeds.get(species=self.species)
 
 
 class PlantUnit(Plantae):
@@ -34,16 +34,18 @@ class PlantUnit(Plantae):
     def __init__(self,
                  plantae_id: str = None,
                  name: str = None,
-                 conditions: str = None
+                 conditions: str = None,
+                 species: str = None
                  ):
-        super(PlantUnit, self).__init__(name)
+        super(PlantUnit, self).__init__(species)
+        self.name = name
         self.id = plantae_id
         if conditions is None:
             self.conditions = dict()
         else:
             self.conditions = conditions
         self.hist = CareHistory(self.id)
-        self.taxonomy = Taxonomy(None)  # not yet implemented
+        self.taxonomy = PlantTaxonomy(species, taxon_rank='species')  # not yet implemented
 
     @staticmethod
     def query(plantae_id):
@@ -61,7 +63,8 @@ class PlantUnit(Plantae):
             PlantUnit(
                 plantae_id=plantae_id,
                 name=q[1],
-                conditions=json.loads(q[2])
+                conditions=json.loads(q[2]),
+                species=q[3]
             )
         else:
             logger.error(
@@ -74,7 +77,7 @@ class PlantUnit(Plantae):
         with PlentyDatabase() as db:
             db.insert(
                 'repertoire',
-                (self.id, self.name, json.dumps(self.conditions))
+                (self.id, self.name, json.dumps(self.conditions), self.species)
             )
 
     def remove_from_repertoire(self):
@@ -86,7 +89,7 @@ class PlantUnit(Plantae):
 
 class Repertoire:
     _schema = [
-        "id text, name text, cond text"
+        "id text, name text, cond text, species text"
     ]
 
     def __init__(self):
@@ -105,7 +108,8 @@ class Repertoire:
         return [
             PlantUnit(plantae_id=row[0],
                       name=row[1],
-                      conditions=json.loads(row[2])
+                      conditions=json.loads(row[2]),
+                      species=row[3]
                       )
             for row in cls.query()
         ]
@@ -117,18 +121,20 @@ class Repertoire:
                 {
                     'id': p.id,
                     'name': p.name,
-                    'conditions': p.conditions
+                    'conditions': p.conditions,
+                    'species': p.taxonomy.scientific_name
                 }
                 for p in self.L
             ]
         else:
             return {}
 
-    def add(self, name, conditions):
+    def add(self, name, conditions, species):
         p = PlantUnit(
             plantae_id=uuid.uuid4().hex,
             name=name,
-            conditions=conditions
+            conditions=conditions,
+            species=species
         )
 
         self.L.append(p)
