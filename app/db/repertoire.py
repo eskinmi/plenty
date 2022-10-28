@@ -4,6 +4,7 @@ from typing import List
 import logging
 from dataclasses import dataclass
 
+from app.db.base import PlentyBaseAppModel
 from app.db import PlentyDatabase
 from app.db.care import CareHistory
 from app.db.care import CareNeeds
@@ -29,7 +30,7 @@ class Plantae:
             self.needs = CareNeeds.get(species=self.species)
 
 
-class PlantUnit(Plantae):
+class PlantUnit(Plantae, PlentyBaseAppModel):
 
     def __init__(self,
                  plantae_id: str = None,
@@ -87,7 +88,7 @@ class PlantUnit(Plantae):
                       )
 
 
-class Repertoire:
+class Repertoire(PlentyBaseAppModel):
     _schema = [
         "id text, name text, cond text, species text"
     ]

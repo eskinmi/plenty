@@ -1,5 +1,7 @@
-import sqlite3
 from typing import Tuple, List
+from abc import ABC, abstractmethod
+
+import sqlite3
 
 
 class PlentyDatabase:
@@ -49,3 +51,22 @@ class PlentyDatabase:
         else:
             self.conn.commit()
         self.conn.close()
+
+
+class PlentyBaseAppModel(ABC):
+    """
+    Base application for Plenty DB Models.
+    The applications should have the following
+        two methods:
+            query: to query the database with a given value.
+            get: to retrieve the values in the model instance.
+    """
+
+    @staticmethod
+    @abstractmethod
+    def query(**kwargs):
+        pass
+
+    @abstractmethod
+    def get(self, **kwargs):
+        pass

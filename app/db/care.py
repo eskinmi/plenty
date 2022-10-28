@@ -3,13 +3,15 @@ import datetime as dt
 import logging
 from typing import Union
 
+from app.db.base import PlentyBaseAppModel
 from app.db import PlentyDatabase
+
 
 
 logger = logging.getLogger('app.care.care')
 
 
-class CareHistory:
+class CareHistory(PlentyBaseAppModel):
     _schema = [
         "id text, cond text, date text"
     ]
@@ -53,7 +55,7 @@ class CareHistory:
         ]
 
 
-class CareNeeds:
+class CareNeeds(PlentyBaseAppModel):
     _schema = [
         'species text, opt_cond_map text'
     ]

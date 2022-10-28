@@ -1,11 +1,12 @@
 import logging
 
+from app.db.base import PlentyBaseAppModel
 from app.db import PlentyDatabase
 
 logger = logging.getLogger('app.taxonomy')
 
 
-class PlantTaxonomy:
+class PlantTaxonomy(PlentyBaseAppModel):
     columns = [
         'taxon_id',
         'scientific_name',
