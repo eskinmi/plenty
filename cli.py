@@ -109,16 +109,27 @@ def plan(ctx, care_type, planner_type, impute, n_days):
 @click.pass_context
 def add_to_repertoire(ctx):
 
+    from app.db.repertoire import Repertoire
+    from app.db.taxonomy import PlantTaxonomy
+
     click.echo('Adding plant to the repertoire.')
     click.echo('Plant Identification Information: ')
     name = click.prompt(
         'plant name',
         type=str
     )
-    species = click.prompt(
-        'plant species',
-        type=str
-    )
+
+    while True:
+        species = click.prompt(
+            'plant species',
+            type=str,
+            value_proc=lambda x: x.lower()
+        )
+        if PlantTaxonomy.query(species):
+            break
+        else:
+            click.echo('Species not found. Please provide the correct name.')
+            # PlantTaxonomy.advanced_search(species)
 
     click.echo('Plant conditions information')
     indoor = click.prompt(
@@ -154,7 +165,6 @@ def add_to_repertoire(ctx):
         'drainage': {'score': drainage_score}
     }
 
-    from app.db.repertoire import Repertoire
     rep = Repertoire()
     rep.add(name, conditions, species)
 
@@ -165,6 +175,8 @@ def add_to_repertoire(ctx):
                         )
     if cont == 'y':
         ctx.invoke(add_to_repertoire)
+    else:
+        click.echo('Added to repertoire!')
 
 
 @cli.command()
