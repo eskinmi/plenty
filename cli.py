@@ -105,25 +105,11 @@ def plan(ctx, care_type, planner_type, impute, n_days):
             notify(f'Plenty Planner', m)
 
 
-def _ask_species_with_retry():
-    from app.db.taxonomy import PlantTaxonomy
-    while True:
-        species = click.prompt(
-            'plant species',
-            type=str,
-            value_proc=lambda x: x.lower()
-        )
-        if PlantTaxonomy.query(species):
-            return species
-        else:
-            click.echo('Species not found. Please provide the correct name.')
-            # PlantTaxonomy.advanced_search(species)
-
-
 @cli.command()
 @click.pass_context
 def add_to_repertoire(ctx):
 
+    from app.db.taxonomy import PlantTaxonomy
     from app.db.repertoire import Repertoire
 
     click.echo('Adding plant to the repertoire.')
@@ -132,7 +118,18 @@ def add_to_repertoire(ctx):
         'plant name',
         type=str
     )
-    species = _ask_species_with_retry()
+
+    while True:
+        species = click.prompt(
+            'plant species',
+            type=str,
+            value_proc=lambda x: x.lower()
+        )
+        if PlantTaxonomy.query(species):
+            break
+        else:
+            click.echo('Species not found. Please provide the correct name.')
+            # PlantTaxonomy.advanced_search(species)
 
     click.echo('Plant conditions information')
     click.echo('Please enter the scores between 0 and 1.')
@@ -179,14 +176,30 @@ def add_to_repertoire(ctx):
 
 @cli.command()
 @click.pass_context
-@click.option('--update', default=False)
-def add_to_care_needs(ctx, update=False):
-
+def add_to_care_needs(ctx):
+    from app.db.taxonomy import PlantTaxonomy
     from app.db.care import CareNeeds
 
     click.echo('Updating plant care needs.')
     click.echo('Plant Identification Information')
-    species = _ask_species_with_retry()
+
+    while True:
+        species = click.prompt(
+            'plant species',
+            type=str,
+            value_proc=lambda x: x.lower()
+        )
+        if PlantTaxonomy.query(species):
+            break
+        else:
+            click.echo('Species not found. Please provide the correct name.')
+            # PlantTaxonomy.advanced_search(species)
+
+    # check if the data is already there.
+    r = CareNeeds.query(species)
+    update = True if r else False
+    if update:
+        click.echo('The needs for this species are already added. Will update the needs.')
 
     click.echo('Plant need information.')
     click.echo('Please enter the scores between 0 and 1.')
@@ -194,14 +207,14 @@ def add_to_care_needs(ctx, update=False):
     water_freq = click.prompt('watering frequency per day', type=float, default=0.4)
     water_type = click.prompt('watering type', type=click.Choice(['top', 'bottom']), show_choices=True, default='top')
     light_score = click.prompt('score: how much light does the plant need', type=float, default=0.5)
-    light_direct = click.prompt('does the plant like direct light', type=bool, default=True)
+    is_direct_light = click.prompt('does the plant like direct light', type=bool, default=True)
     temp_min = click.prompt('minimum optimal temperature', type=float, default=18.0)
     temp_max = click.prompt('maximum optimal temperature', type=float, default=26.0)
     moistness_score = click.prompt('score: soil moistness', type=float, default=0.5)
     drainage_score = click.prompt('score: pot drainage efficacy need', type=float, default=0.8)
     misting_freq = click.prompt('misting frequency per day', type=float, default=0.03)
     shower_freq = click.prompt('shower frequency per day', type=float, default=0.03)
-    fertilization_freq = click.prompt('fertilization frequency per day', type=float, default=0.03)
+    fertilisation_freq = click.prompt('fertilization frequency per day', type=float, default=0.03)
     dusting_freq = click.prompt('dusting frequency per day', type=float, default=0.02)
 
     needs = {
@@ -214,7 +227,7 @@ def add_to_care_needs(ctx, update=False):
         "light":
             {
                 "score": light_score,
-                "direct": light_direct
+                "direct": is_direct_light
             },
         "air":
             {
@@ -245,7 +258,7 @@ def add_to_care_needs(ctx, update=False):
         "fertilize":
             {
                 "type": "common",
-                "freq": fertilization_freq
+                "freq": fertilisation_freq
             },
         "dust":
             {
@@ -260,6 +273,16 @@ def add_to_care_needs(ctx, update=False):
         click.echo(F'Updating {species} care needs.')
         CareNeeds.update_needs(species=species, needs=needs)
     click.echo('Success!')
+
+    cont = click.prompt('Would you like to add more care needs?',
+                        default='n',
+                        show_choices=True,
+                        type=click.Choice(['y', 'n'])
+                        )
+    if cont == 'y':
+        ctx.invoke(add_to_care_needs)
+    else:
+        click.echo('Done!')
 
 
 @cli.command()

@@ -5,7 +5,7 @@ from functools import wraps
 from typing import List, Dict
 
 
-logger = logging.getLogger('model utilities')
+logger = logging.getLogger('app.models.utils')
 
 
 def _map_response_with_func(res: List[Dict], map_func=None):
