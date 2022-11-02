@@ -9,6 +9,7 @@ from app.db import PlentyDatabase
 from app.db.care import CareHistory
 from app.db.care import CareNeeds
 from app.db.taxonomy import PlantTaxonomy
+from app.db.utils import norm_species
 
 
 logger = logging.getLogger('app.repertoire')
@@ -38,6 +39,7 @@ class PlantUnit(Plantae, PlentyBaseAppModel):
                  conditions: str = None,
                  species: str = None
                  ):
+        species = norm_species(species)
         super(PlantUnit, self).__init__(species)
         self.name = name
         self.id = plantae_id
@@ -135,7 +137,7 @@ class Repertoire(PlentyBaseAppModel):
             plantae_id=uuid.uuid4().hex,
             name=name,
             conditions=conditions,
-            species=species
+            species=norm_species(species)
         )
 
         self.L.append(p)

@@ -5,6 +5,7 @@ from typing import Union
 
 from app.db.base import PlentyBaseAppModel
 from app.db import PlentyDatabase
+from app.db.utils import norm_species
 
 logger = logging.getLogger('app.care.care')
 
@@ -64,13 +65,14 @@ class CareNeeds(PlentyBaseAppModel):
         with PlentyDatabase() as db:
             q = db.cursor.execute(
                 "SELECT * FROM care_needs WHERE species = :species",
-                {'species': species}
+                {'species': norm_species(species)}
             )
             res = q.fetchone()
         return res
 
     @classmethod
     def get(cls, species: str):
+        species = norm_species(species)
         if not cls.data.get(species):
             needs = cls.query(species)
             res = json.loads(needs[1])
@@ -83,12 +85,12 @@ class CareNeeds(PlentyBaseAppModel):
     @staticmethod
     def add(species: str, needs: dict):
         with PlentyDatabase() as db:
-            db.insert(table='care_needs', values=(species, json.dumps(needs)))
+            db.insert(table='care_needs', values=(norm_species(species), json.dumps(needs)))
 
     @staticmethod
     def update_needs(species: str, needs: dict):
         with PlentyDatabase() as db:
             db.cursor.execute(
                 "UPDATE care_needs SET opt_cond_map = :needs WHERE species = :species",
-                {"species": species, 'needs': json.dumps(needs)}
+                {"species": norm_species(species), 'needs': json.dumps(needs)}
             )

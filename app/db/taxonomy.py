@@ -2,6 +2,7 @@ import logging
 
 from app.db.base import PlentyBaseAppModel
 from app.db import PlentyDatabase
+from app.db.utils import norm_species
 
 logger = logging.getLogger('app.taxonomy')
 
@@ -29,7 +30,7 @@ class PlantTaxonomy(PlentyBaseAppModel):
         self.taxon_rank = taxon_rank
         self._name = scientific_name
         if self._name is not None:
-            self.scientific_name = self._name.lower()
+            self.scientific_name = norm_species(self._name)
         else:
             self.scientific_name = None
         self.index = None
@@ -50,7 +51,7 @@ class PlantTaxonomy(PlentyBaseAppModel):
             req = db.cursor.execute(
                 "SELECT * FROM taxonomy WHERE taxon_rank = :taxon_rank AND scientific_name = :scientific_name",
                 {
-                    'scientific_name': scientific_name,
+                    'scientific_name': norm_species(scientific_name),
                     'taxon_rank': taxon_rank
                  }
             )
@@ -63,7 +64,7 @@ class PlantTaxonomy(PlentyBaseAppModel):
             req = db.cursor.execute(
                 " SELECT * FROM taxonomy WHERE scientific_name = :scientific_name",
                 {
-                    'scientific_name': scientific_name
+                    'scientific_name': norm_species(scientific_name)
                 }
             )
             res = req.fetchall()
