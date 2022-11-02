@@ -105,20 +105,8 @@ def plan(ctx, care_type, planner_type, impute, n_days):
             notify(f'Plenty Planner', m)
 
 
-@cli.command()
-@click.pass_context
-def add_to_repertoire(ctx):
-
-    from app.db.repertoire import Repertoire
+def _ask_species_with_retry():
     from app.db.taxonomy import PlantTaxonomy
-
-    click.echo('Adding plant to the repertoire.')
-    click.echo('Plant Identification Information: ')
-    name = click.prompt(
-        'plant name',
-        type=str
-    )
-
     while True:
         species = click.prompt(
             'plant species',
@@ -126,47 +114,57 @@ def add_to_repertoire(ctx):
             value_proc=lambda x: x.lower()
         )
         if PlantTaxonomy.query(species):
-            break
+            return species
         else:
             click.echo('Species not found. Please provide the correct name.')
             # PlantTaxonomy.advanced_search(species)
 
-    click.echo('Plant conditions information')
-    indoor = click.prompt(
-        'is this an indoor plant',
-        default=True,
-        type=bool,
-        show_default=True
-    )
 
-    click.echo('Please score the following between 0 and 1')
-    isolation_score = click.prompt(
-        'how well is the room of the plant isolated',
-        type=float,
-        default=0.5,
-        show_default=True
+@cli.command()
+@click.pass_context
+def add_to_repertoire(ctx):
+
+    from app.db.repertoire import Repertoire
+
+    click.echo('Adding plant to the repertoire.')
+    click.echo('Plant Identification Information: ')
+    name = click.prompt(
+        'plant name',
+        type=str
     )
-    light_score = click.prompt(
-        'how much light the plant receives',
-        type=float,
-        default=0.5,
-        show_default=True
-    )
-    drainage_score = click.prompt(
-        'how good is the drainage in the pot',
-        type=float,
-        default=0.5,
-        show_default=True
-    )
+    species = _ask_species_with_retry()
+
+    click.echo('Plant conditions information')
+    click.echo('Please enter the scores between 0 and 1.')
     conditions = {
-        'indoor': indoor,
-        'isolation': {'score': isolation_score},
-        'light': {'score': light_score},
-        'drainage': {'score': drainage_score}
+        'indoor': click.prompt('is this an indoor plant', default=True, type=bool, show_default=True),
+        'isolation': {
+            'score': click.prompt('score: how well is the room of the plant isolated',
+                                  type=float,
+                                  default=0.5,
+                                  show_default=True
+                                  )
+        },
+        'light': {
+            'score': click.prompt('score: how much light the plant receives',
+                                  type=float,
+                                  default=0.5,
+                                  show_default=True
+                                  )
+        },
+        'drainage': {
+            'score': click.prompt('score: how good is the drainage in the pot',
+                                  type=float,
+                                  default=0.5,
+                                  show_default=True
+                                  )
+        }
     }
 
+    click.echo('Adding plant to repertoire')
     rep = Repertoire()
     rep.add(name, conditions, species)
+    click.echo('Success!')
 
     cont = click.prompt('Would you like to add more plants?',
                         default='n',
@@ -176,7 +174,92 @@ def add_to_repertoire(ctx):
     if cont == 'y':
         ctx.invoke(add_to_repertoire)
     else:
-        click.echo('Added to repertoire!')
+        click.echo('Done!')
+
+
+@cli.command()
+@click.pass_context
+@click.option('--update', default=False)
+def add_to_care_needs(ctx, update=False):
+
+    from app.db.care import CareNeeds
+
+    click.echo('Updating plant care needs.')
+    click.echo('Plant Identification Information')
+    species = _ask_species_with_retry()
+
+    click.echo('Plant need information.')
+    click.echo('Please enter the scores between 0 and 1.')
+
+    water_freq = click.prompt('watering frequency per day', type=float, default=0.4)
+    water_type = click.prompt('watering type', type=click.Choice(['top', 'bottom']), show_choices=True, default='top')
+    light_score = click.prompt('score: how much light does the plant need', type=float, default=0.5)
+    light_direct = click.prompt('does the plant like direct light', type=bool, default=True)
+    temp_min = click.prompt('minimum optimal temperature', type=float, default=18.0)
+    temp_max = click.prompt('maximum optimal temperature', type=float, default=26.0)
+    moistness_score = click.prompt('score: soil moistness', type=float, default=0.5)
+    drainage_score = click.prompt('score: pot drainage efficacy need', type=float, default=0.8)
+    misting_freq = click.prompt('misting frequency per day', type=float, default=0.03)
+    shower_freq = click.prompt('shower frequency per day', type=float, default=0.03)
+    fertilization_freq = click.prompt('fertilization frequency per day', type=float, default=0.03)
+    dusting_freq = click.prompt('dusting frequency per day', type=float, default=0.02)
+
+    needs = {
+        "water":
+            {
+                "freq": water_freq,
+                "amount": 0.5,
+                "watering_type": water_type
+            },
+        "light":
+            {
+                "score": light_score,
+                "direct": light_direct
+            },
+        "air":
+            {
+                "temperature":
+                    {
+                        "min": temp_min,
+                        "max": temp_max
+                    },
+                "humidity": None
+            },
+        "soil":
+            {
+                "type": "normal",
+                "moistness": moistness_score
+            },
+        "drainage":
+            {
+                "score": drainage_score
+            },
+        "mist":
+            {
+                "freq": misting_freq
+            },
+        "shower":
+            {
+                "freq": shower_freq
+            },
+        "fertilize":
+            {
+                "type": "common",
+                "freq": fertilization_freq
+            },
+        "dust":
+            {
+                "freq": dusting_freq
+            }
+    }
+
+    if not update:
+        click.echo(F'Adding {species} care needs to database.')
+        CareNeeds.add(species=species, needs=needs)
+    else:
+        click.echo(F'Updating {species} care needs.')
+        CareNeeds.update_needs(species=species, needs=needs)
+    click.echo('Success!')
 
 
 @cli.command()

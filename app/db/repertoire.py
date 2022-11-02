@@ -61,7 +61,7 @@ class PlantUnit(Plantae, PlentyBaseAppModel):
     def get(cls, plantae_id: str):
         q = cls.query(plantae_id)
         if q:
-            PlantUnit(
+            return PlantUnit(
                 plantae_id=plantae_id,
                 name=q[1],
                 conditions=json.loads(q[2]),

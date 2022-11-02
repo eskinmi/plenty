@@ -48,13 +48,25 @@ class PlantTaxonomy(PlentyBaseAppModel):
     def query(scientific_name, taxon_rank: str = 'species'):
         with PlentyDatabase() as db:
             req = db.cursor.execute(
-                " SELECT * FROM taxonomy WHERE taxon_rank = :taxon_rank AND scientific_name = :scientific_name",
+                "SELECT * FROM taxonomy WHERE taxon_rank = :taxon_rank AND scientific_name = :scientific_name",
                 {
                     'scientific_name': scientific_name,
                     'taxon_rank': taxon_rank
                  }
             )
             res = req.fetchone()
+        return res
+
+    @staticmethod
+    def query_any(scientific_name):
+        with PlentyDatabase() as db:
+            req = db.cursor.execute(
+                " SELECT * FROM taxonomy WHERE scientific_name = :scientific_name",
+                {
+                    'scientific_name': scientific_name
+                }
+            )
+            res = req.fetchall()
         return res
 
     def get(self):

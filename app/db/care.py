@@ -6,8 +6,6 @@ from typing import Union
 from app.db.base import PlentyBaseAppModel
 from app.db import PlentyDatabase
 
-
-
 logger = logging.getLogger('app.care.care')
 
 
@@ -81,3 +79,16 @@ class CareNeeds(PlentyBaseAppModel):
         else:
             logger.debug('data is already loaded.')
             return cls.data.get(species, {})
+
+    @staticmethod
+    def add(species: str, needs: dict):
+        with PlentyDatabase() as db:
+            db.insert(table='care_needs', values=(species, json.dumps(needs)))
+
+    @staticmethod
+    def update_needs(species: str, needs: dict):
+        with PlentyDatabase() as db:
+            db.cursor.execute(
+                "UPDATE care_needs SET opt_cond_map = :needs WHERE species = :species",
+                {"species": species, 'needs': json.dumps(needs)}
+            )
