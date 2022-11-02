@@ -9,10 +9,10 @@ license = "MIT"
 python = "^3.8"
 numpy = "1.23.0"
 pandas = "^1.4.3"
-tensorflow-deps = "2.9.0"
+#tensorflow-deps = "2.9.0"
 tensorflow-macos = "2.9.2"
 tensorflow-metal = "0.5.0"
-
+Pillow = "^9.3.0"
 
 [tool.poetry.dev-dependencies]
 
