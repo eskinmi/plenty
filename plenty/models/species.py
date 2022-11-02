@@ -4,7 +4,7 @@ import logging
 
 from plenty.api.plantnet import get_prediction
 from plenty.models.utils import with_images_check
-from plenty.models.utils import read_image
+from plenty.utils import read_img_binary
 from plenty.models.utils import format_prediction_response
 
 
@@ -30,7 +30,7 @@ def load_images(path):
     image_paths = []
     for key in os.listdir(path):
         image_path = os.path.join(path, key)
-        image = read_image(image_path)
+        image = read_img_binary(image_path)
         images.append(image)
         image_paths.append(image_path)
     return image_paths, images
