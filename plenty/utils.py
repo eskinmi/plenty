@@ -24,3 +24,10 @@ def write_json(path, obj):
 
 def get_user_info(path: str = './store/user.json'):
     return read_json(path)
+
+
+def read_img_binary(path):
+    """ Read image from the path in bytes """
+    with open(path, 'rb') as image_file:
+        image = image_file.read()
+    return image

@@ -8,13 +8,6 @@ from typing import List, Dict
 logger = logging.getLogger('model utilities')
 
 
-def read_image(path):
-    """ Read image from the path in bytes """
-    with open(path, 'rb') as image_file:
-        image = image_file.read()
-    return image
-
-
 def _map_response_with_func(res: List[Dict], map_func=None):
     if map_func:
         return list(map(
